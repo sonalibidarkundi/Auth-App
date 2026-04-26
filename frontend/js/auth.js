@@ -1,209 +1,214 @@
-// Toast Notification System
-function showToast(message, type = 'info') {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
-
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span>
-        ${message}
-    `;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 4500);
-}
-
-// Set button loading state
-function setButtonLoading(btn, loading) {
-    if (loading) {
-        btn.dataset.originalText = btn.textContent;
-        btn.innerHTML = '<span class="spinner"></span> Processing...';
-        btn.disabled = true;
-    } else {
-        btn.textContent = btn.dataset.originalText || 'Submit';
-        btn.disabled = false;
+// Utility functions
+function showMessage(message, type = 'error') {
+    const msgDiv = document.getElementById('message');
+    if (msgDiv) {
+        msgDiv.textContent = message;
+        msgDiv.className = type;
+        setTimeout(() => {
+            msgDiv.style.display = 'none';
+        }, 5000);
     }
 }
 
-// Auth Guard - Redirect if not authenticated
-function checkAuth() {
-    const token = localStorage.getItem('token');
-    const isAuthPage = window.location.pathname === '/' || window.location.pathname === '/register.html';
-
-    if (!token && !isAuthPage) {
-        window.location.href = '/';
-    } else if (token && isAuthPage) {
-        window.location.href = '/dashboard.html';
-    }
+function saveToken(token) {
+    localStorage.setItem('token', token);
 }
 
-// Login Handler
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('loginBtn');
-        setButtonLoading(btn, true);
-
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        try {
-            const result = await apiRequest(API_URLS.login, {
-                method: 'POST',
-                body: JSON.stringify({ email, password })
-            });
-
-            if (result.data.success) {
-                localStorage.setItem('token', result.data.data.token);
-                showToast('Login successful! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = '/dashboard.html';
-                }, 1000);
-            } else {
-                showToast(result.data.message || 'Login failed', 'error');
-            }
-        } catch (error) {
-            showToast('Network error. Please try again.', 'error');
-        } finally {
-            setButtonLoading(btn, false);
-        }
-    });
+function getToken() {
+    return localStorage.getItem('token');
 }
 
-// Register Handler
-const registerForm = document.getElementById('registerForm');
-if (registerForm) {
-    registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('registerBtn');
-        setButtonLoading(btn, true);
-
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const full_name = document.getElementById('full_name').value;
-
-        try {
-            const result = await apiRequest(API_URLS.register, {
-                method: 'POST',
-                body: JSON.stringify({ username, email, password, full_name })
-            });
-
-            if (result.data.success) {
-                localStorage.setItem('token', result.data.data.token);
-                showToast('Account created! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = '/dashboard.html';
-                }, 1000);
-            } else {
-                showToast(result.data.message || 'Registration failed', 'error');
-            }
-        } catch (error) {
-            showToast('Network error. Please try again.', 'error');
-        } finally {
-            setButtonLoading(btn, false);
-        }
-    });
-}
-
-// Load Profile
-async function loadProfile() {
-    try {
-        const result = await apiRequest(API_URLS.me, { method: 'GET' });
-
-        if (result.data.success) {
-            const user = result.data.data.user;
-
-            document.getElementById('usernameDisplay').textContent = user.username;
-            document.getElementById('welcomeName').textContent = 'Welcome, ' + (user.full_name || user.username);
-            document.getElementById('profileEmail').textContent = user.email;
-
-            document.getElementById('updateUsername').value = user.username;
-            document.getElementById('updateFullName').value = user.full_name || '';
-        }
-    } catch (error) {
-        showToast('Failed to load profile', 'error');
-    }
-}
-
-// Update Profile Handler
-const updateProfileForm = document.getElementById('updateProfileForm');
-if (updateProfileForm) {
-    updateProfileForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector('button[type="submit"]');
-        setButtonLoading(btn, true);
-
-        const username = document.getElementById('updateUsername').value;
-        const full_name = document.getElementById('updateFullName').value;
-
-        try {
-            const result = await apiRequest(API_URLS.profile, {
-                method: 'PUT',
-                body: JSON.stringify({ username, full_name })
-            });
-
-            if (result.data.success) {
-                showToast('Profile updated successfully!', 'success');
-                loadProfile();
-            } else {
-                showToast(result.data.message || 'Update failed', 'error');
-            }
-        } catch (error) {
-            showToast('Network error. Please try again.', 'error');
-        } finally {
-            setButtonLoading(btn, false);
-        }
-    });
-}
-
-// Change Password Handler
-const changePasswordForm = document.getElementById('changePasswordForm');
-if (changePasswordForm) {
-    changePasswordForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector('button[type="submit"]');
-        setButtonLoading(btn, true);
-
-        const current_password = document.getElementById('currentPassword').value;
-        const new_password = document.getElementById('newPassword').value;
-
-        try {
-            const result = await apiRequest(API_URLS.changePassword, {
-                method: 'PUT',
-                body: JSON.stringify({ current_password, new_password })
-            });
-
-            if (result.data.success) {
-                showToast('Password changed successfully!', 'success');
-                changePasswordForm.reset();
-            } else {
-                showToast(result.data.message || 'Password change failed', 'error');
-            }
-        } catch (error) {
-            showToast('Network error. Please try again.', 'error');
-        } finally {
-            setButtonLoading(btn, false);
-        }
-    });
-}
-
-// Logout
-function logout() {
+function removeToken() {
     localStorage.removeItem('token');
-    showToast('Logged out successfully', 'info');
-    setTimeout(() => {
-        window.location.href = '/';
-    }, 500);
 }
 
-// Initialize
-checkAuth();
-if (window.location.pathname === '/dashboard.html') {
-    loadProfile();
+function isLoggedIn() {
+    return !!getToken();
 }
+
+function redirect(url) {
+    window.location.href = url;
+}
+
+// Check auth status on page load
+function checkAuth() {
+    const publicPages = ['index.html', 'register.html', '/'];
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    if (!isLoggedIn() && !publicPages.includes(currentPage)) {
+        redirect('index.html');
+    }
+    
+    if (isLoggedIn() && (currentPage === 'index.html' || currentPage === 'register.html')) {
+        redirect('dashboard.html');
+    }
+}
+
+// Login form handler
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const data = await api.login({ email, password });
+                saveToken(data.data.token);
+                showMessage('Login successful! Redirecting...', 'success');
+                setTimeout(() => redirect('dashboard.html'), 1000);
+            } catch (error) {
+                showMessage(error.message || 'Login failed', 'error');
+            }
+        });
+    }
+    
+    // Register form handler
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                full_name: document.getElementById('fullName').value
+            };
+            
+            try {
+                const data = await api.register(userData);
+                saveToken(data.data.token);
+                showMessage('Registration successful! Redirecting...', 'success');
+                setTimeout(() => redirect('dashboard.html'), 1000);
+            } catch (error) {
+                showMessage(error.message || 'Registration failed', 'error');
+            }
+        });
+    }
+    
+    // Dashboard profile load
+    const dashboardPage = document.querySelector('.dashboard-box');
+    if (dashboardPage) {
+        loadDashboard();
+    }
+    
+    // Logout handler
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            removeToken();
+            redirect('index.html');
+        });
+    }
+
+    // Edit Profile toggle
+    const toggleEditProfile = document.getElementById('toggleEditProfile');
+    const editProfileSection = document.getElementById('editProfileSection');
+    const cancelEditProfile = document.getElementById('cancelEditProfile');
+
+    if (toggleEditProfile && editProfileSection) {
+        toggleEditProfile.addEventListener('click', () => {
+            editProfileSection.style.display = editProfileSection.style.display === 'none' ? 'block' : 'none';
+            if (changePasswordSection) changePasswordSection.style.display = 'none';
+        });
+    }
+
+    if (cancelEditProfile && editProfileSection) {
+        cancelEditProfile.addEventListener('click', () => {
+            editProfileSection.style.display = 'none';
+        });
+    }
+
+    // Change Password toggle
+    const toggleChangePassword = document.getElementById('toggleChangePassword');
+    const changePasswordSection = document.getElementById('changePasswordSection');
+    const cancelChangePassword = document.getElementById('cancelChangePassword');
+
+    if (toggleChangePassword && changePasswordSection) {
+        toggleChangePassword.addEventListener('click', () => {
+            changePasswordSection.style.display = changePasswordSection.style.display === 'none' ? 'block' : 'none';
+            if (editProfileSection) editProfileSection.style.display = 'none';
+        });
+    }
+
+    if (cancelChangePassword && changePasswordSection) {
+        cancelChangePassword.addEventListener('click', () => {
+            changePasswordSection.style.display = 'none';
+        });
+    }
+
+    // Edit Profile form handler
+    const editProfileForm = document.getElementById('editProfileForm');
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('editUsername').value;
+            const fullName = document.getElementById('editFullName').value;
+
+            try {
+                const data = await api.updateProfile({ username, full_name: fullName });
+                showMessage('Profile updated successfully!', 'success');
+                if (editProfileSection) editProfileSection.style.display = 'none';
+                loadDashboard();
+            } catch (error) {
+                showMessage(error.message || 'Failed to update profile', 'error');
+            }
+        });
+    }
+
+    // Change Password form handler
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showMessage('New passwords do not match', 'error');
+                return;
+            }
+
+            try {
+                const data = await api.changePassword({ current_password: currentPassword, new_password: newPassword });
+                showMessage('Password changed successfully!', 'success');
+                changePasswordForm.reset();
+                if (changePasswordSection) changePasswordSection.style.display = 'none';
+            } catch (error) {
+                showMessage(error.message || 'Failed to change password', 'error');
+            }
+        });
+    }
+});
+
+async function loadDashboard() {
+    try {
+        const data = await api.getProfile();
+        const user = data.data.user;
+        
+        document.getElementById('userName').textContent = user.username;
+        document.getElementById('profileUsername').textContent = user.username;
+        document.getElementById('profileEmail').textContent = user.email;
+        document.getElementById('profileFullName').textContent = user.full_name || 'Not set';
+        document.getElementById('profileCreated').textContent = new Date(user.created_at).toLocaleDateString();
+
+        // Pre-populate edit form fields
+        const editUsername = document.getElementById('editUsername');
+        const editFullName = document.getElementById('editFullName');
+        if (editUsername) editUsername.value = user.username;
+        if (editFullName) editFullName.value = user.full_name || '';
+    } catch (error) {
+        console.error('Failed to load profile:', error);
+        removeToken();
+        redirect('index.html');
+    }
+}
+

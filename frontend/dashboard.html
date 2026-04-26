@@ -3,68 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Auth App</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Dashboard - Flask Auth</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-brand">AuthApp</div>
-        <div class="nav-links">
-            <span class="nav-user" id="usernameDisplay">Loading...</span>
-            <button class="btn btn-secondary" onclick="logout()">Logout</button>
-        </div>
-    </nav>
-
-    <div class="container dashboard">
-        <!-- Profile Info Banner -->
-        <div class="profile-banner">
-            <div class="profile-avatar">👤</div>
-            <div class="profile-details">
-                <h1 id="welcomeName">Welcome</h1>
-                <p id="profileEmail">email@example.com</p>
+    <div class="container">
+        <div class="dashboard-box">
+            <h1>Welcome, <span id="userName">User</span>!</h1>
+            <div class="profile-info">
+                <h2>Your Profile</h2>
+                <p><strong>Username:</strong> <span id="profileUsername"></span></p>
+                <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+                <p><strong>Full Name:</strong> <span id="profileFullName"></span></p>
+                <p><strong>Account Created:</strong> <span id="profileCreated"></span></p>
             </div>
-        </div>
 
-        <!-- Two Cards Side by Side -->
-        <div class="dashboard-grid">
-            <!-- Edit Profile Card -->
-            <div class="card">
+            <div id="message"></div>
+
+            <div class="actions">
+                <button id="toggleEditProfile" class="btn btn-action">Edit Profile</button>
+                <button id="toggleChangePassword" class="btn btn-action">Change Password</button>
+            </div>
+
+            <div id="editProfileSection" class="form-section" style="display: none;">
                 <h2>Edit Profile</h2>
-                <form id="updateProfileForm">
+                <form id="editProfileForm">
                     <div class="input-group">
-                        <label for="updateUsername">Username</label>
-                        <input type="text" id="updateUsername" name="username">
+                        <label for="editUsername">Username</label>
+                        <input type="text" id="editUsername" required placeholder="Enter username">
                     </div>
                     <div class="input-group">
-                        <label for="updateFullName">Full Name</label>
-                        <input type="text" id="updateFullName" name="full_name">
+                        <label for="editFullName">Full Name</label>
+                        <input type="text" id="editFullName" placeholder="Enter full name">
                     </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn">Save Changes</button>
+                    <button type="button" id="cancelEditProfile" class="btn btn-secondary">Cancel</button>
                 </form>
             </div>
 
-            <!-- Change Password Card -->
-            <div class="card">
+            <div id="changePasswordSection" class="form-section" style="display: none;">
                 <h2>Change Password</h2>
                 <form id="changePasswordForm">
                     <div class="input-group">
                         <label for="currentPassword">Current Password</label>
-                        <input type="password" id="currentPassword" name="current_password" required>
+                        <input type="password" id="currentPassword" required placeholder="Enter current password">
                     </div>
                     <div class="input-group">
                         <label for="newPassword">New Password</label>
-                        <input type="password" id="newPassword" name="new_password" required>
+                        <input type="password" id="newPassword" required placeholder="Enter new password" minlength="6">
                     </div>
-                    <button type="submit" class="btn btn-primary">Update Password</button>
+                    <div class="input-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" required placeholder="Confirm new password" minlength="6">
+                    </div>
+                    <button type="submit" class="btn">Update Password</button>
+                    <button type="button" id="cancelChangePassword" class="btn btn-secondary">Cancel</button>
                 </form>
             </div>
+
+            <button id="logoutBtn" class="btn btn-secondary">Logout</button>
         </div>
     </div>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script src="/js/api.js"></script>
-    <script src="/js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
 
