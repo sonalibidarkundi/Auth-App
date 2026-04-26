@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Auth App</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">AuthApp</div>
+        <div class="nav-links">
+            <span class="nav-user" id="usernameDisplay">Loading...</span>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container dashboard">
+        <!-- Profile Info Banner -->
+        <div class="profile-banner">
+            <div class="profile-avatar">👤</div>
+            <div class="profile-details">
+                <h1 id="welcomeName">Welcome</h1>
+                <p id="profileEmail">email@example.com</p>
+            </div>
+        </div>
+
+        <!-- Two Cards Side by Side -->
+        <div class="dashboard-grid">
+            <!-- Edit Profile Card -->
+            <div class="card">
+                <h2>Edit Profile</h2>
+                <form id="updateProfileForm">
+                    <div class="input-group">
+                        <label for="updateUsername">Username</label>
+                        <input type="text" id="updateUsername" name="username">
+                    </div>
+                    <div class="input-group">
+                        <label for="updateFullName">Full Name</label>
+                        <input type="text" id="updateFullName" name="full_name">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card">
+                <h2>Change Password</h2>
+                <form id="changePasswordForm">
+                    <div class="input-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="current_password" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="new_password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>
+
